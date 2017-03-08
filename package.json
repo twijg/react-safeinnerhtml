@@ -9,6 +9,7 @@
     "react-dom",
     "dom"
   ],
+  "author": "Twijg IT B.V. <info@twijg-it.nl>",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -34,5 +35,9 @@
     "lodash": ">=4.0.0",
     "prettier": "0.21.0",
     "react": ">=15.0.0"
+  },
+  "repository": {
+    "url": "https://github.com/twijg/react-safeinnerhtml",
+    "type": "git"
   }
 }
