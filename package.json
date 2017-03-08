@@ -1,0 +1,38 @@
+{
+  "name": "react-safeinnerhtml",
+  "version": "1.0.0",
+  "description": "HOC to safely use HTML in the DOM",
+  "keywords": [
+    "react",
+    "react-component",
+    "html",
+    "react-dom",
+    "dom"
+  ],
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint -c .eslintrc src/**/*.js*",
+    "prettier": "prettier --write src/**/*.js*",
+    "test": "",
+    "build": "babel src/ --out-dir dist/"
+  },
+  "peerDependencies": {
+    "classnames": ">=2.2.0",
+    "empty": ">=0.10.1",
+    "lodash": ">=4.0.0",
+    "react": ">=15.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "6.23.0",
+    "babel-preset-env": "1.2.1",
+    "babel-preset-es2015": "6.22.0",
+    "babel-preset-react": "6.23.0",
+    "babel-preset-stage-2": "6.22.0",
+    "classnames": ">=2.2.0",
+    "empty": ">=0.10.1",
+    "lodash": ">=4.0.0",
+    "prettier": "0.21.0",
+    "react": ">=15.0.0"
+  }
+}
