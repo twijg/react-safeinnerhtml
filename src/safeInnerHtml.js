@@ -2,7 +2,10 @@ import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
 import compact from "lodash/fp/compact";
 import flow from "lodash/flow";
 import map from "lodash/fp/map";
+import pickBy from "lodash/fp/pickBy";
 import React, { Component } from "react";
+import some from "lodash/fp/some";
+import startsWith from "lodash/fp/startsWith";
 
 class SafeInnerHtml extends Component {
   constructor(props) {
@@ -143,7 +146,7 @@ class SafeInnerHtml extends Component {
 
     const defaultElement = { type: localName, props };
     const plugElement = typeof plug === "function"
-      ? plug({ ...defaultElement, attributes })
+      ? plug(defaultElement)
       : undefined;
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
@@ -174,9 +177,14 @@ class SafeInnerHtml extends Component {
 
   render() {
     const result = this.renderNodes(this.fragment.childNodes);
+    const ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
+    const wrapperProps = pickBy((v, k) => some(startsWith(k))(ignored))(
+      this.props
+    );
+
     return result.length === 0
       ? null
-      : React.createElement(this.props.wrapper, {}, result);
+      : React.createElement(this.props.wrapper, wrapperProps, result);
   }
 
   documentWrite(key) {

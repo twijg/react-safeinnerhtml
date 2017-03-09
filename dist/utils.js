@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.resolveImages = exports.parseHTML = exports.makePrefix = exports.unwrap = exports.htmlProps = exports.sequence = undefined;
+exports.parseHTML = exports.unwrap = exports.htmlProps = exports.sequence = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -259,41 +259,7 @@ var unwrap = exports.unwrap = function unwrap(maybeArray) {
   return Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 };
 
-var makePrefix = exports.makePrefix = function makePrefix(prefix, value) {
-  return typeof value === "string" && value.indexOf(prefix) === 0 ? value : "" + prefix + value;
-};
-
 /** Parses HTML and returns body element */
 var parseHTML = exports.parseHTML = function parseHTML(innerHTML) {
   return new DOMParser().parseFromString(innerHTML, "text/html").body;
-};
-
-var resolveImages = exports.resolveImages = function resolveImages(innerHTML, prefix) {
-  var body = parseHTML(innerHTML);
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = body.querySelectorAll("img")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var img = _step.value;
-
-      img.src = makePrefix(prefix, img.getAttribute("src"));
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  return body.innerHTML;
 };

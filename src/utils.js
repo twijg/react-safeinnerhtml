@@ -225,19 +225,6 @@ export const htmlProps = (namedNodeMap, key) => {
 export const unwrap = maybeArray =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
-export const makePrefix = (prefix, value) =>
-  typeof value === "string" && value.indexOf(prefix) === 0
-    ? value
-    : `${prefix}${value}`;
-
 /** Parses HTML and returns body element */
 export const parseHTML = innerHTML =>
   new DOMParser().parseFromString(innerHTML, "text/html").body;
-
-export const resolveImages = (innerHTML, prefix) => {
-  const body = parseHTML(innerHTML);
-  for (const img of body.querySelectorAll("img")) {
-    img.src = makePrefix(prefix, img.getAttribute("src"));
-  }
-  return body.innerHTML;
-};
