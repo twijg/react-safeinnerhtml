@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _utils = require("./utils");
@@ -43,11 +45,17 @@ var SafeInnerHtml = function (_Component) {
     _this.initialize(props);
     _this.chooseAttribute = _this.chooseAttribute.bind(_this);
     _this.chooseNode = _this.chooseNode.bind(_this);
+    _this.addCss = _this.addCss.bind(_this);
     _this.insertedNodes = [];
     return _this;
   }
 
   _createClass(SafeInnerHtml, [{
+    key: "addCss",
+    value: function addCss(value) {
+      this.css.push(value);
+    }
+  }, {
     key: "chooseAttribute",
     value: function chooseAttribute(_ref) {
       var attribute = _ref.attribute,
@@ -64,7 +72,7 @@ var SafeInnerHtml = function (_Component) {
 
       var plug = this.props["attribute-" + localName.toLowerCase()];
       if (typeof plug === "function") {
-        var result = plug({ attribute: attribute, key: key, elementName: elementName });
+        var result = plug({ attribute: attribute, key: key, elementName: elementName }, { addCss: this.addCss });
         if (result !== undefined) {
           return result;
         }
@@ -207,7 +215,7 @@ var SafeInnerHtml = function (_Component) {
       }
 
       var defaultElement = { type: localName, props: props };
-      var plugElement = typeof plug === "function" ? plug(defaultElement) : undefined;
+      var plugElement = typeof plug === "function" ? plug(_extends({}, defaultElement, { attributes: attributes })) : undefined;
       var element = plugElement === undefined ? defaultElement : plugElement;
       if (element) {
         var type = element.type,

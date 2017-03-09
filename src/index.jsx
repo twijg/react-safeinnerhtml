@@ -10,7 +10,12 @@ class SafeInnerHtml extends Component {
     this.initialize(props);
     this.chooseAttribute = this.chooseAttribute.bind(this);
     this.chooseNode = this.chooseNode.bind(this);
+    this.addCss = this.addCss.bind(this);
     this.insertedNodes = [];
+  }
+
+  addCss(value) {
+    this.css.push(value);
   }
 
   chooseAttribute({ attribute, key, elementName }) {
@@ -23,7 +28,10 @@ class SafeInnerHtml extends Component {
 
     const plug = this.props[`attribute-${localName.toLowerCase()}`];
     if (typeof plug === "function") {
-      const result = plug({ attribute, key, elementName });
+      const result = plug(
+        { attribute, key, elementName },
+        { addCss: this.addCss }
+      );
       if (result !== undefined) {
         return result;
       }
@@ -135,7 +143,7 @@ class SafeInnerHtml extends Component {
 
     const defaultElement = { type: localName, props };
     const plugElement = typeof plug === "function"
-      ? plug(defaultElement)
+      ? plug({ ...defaultElement, attributes })
       : undefined;
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
