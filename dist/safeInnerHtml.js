@@ -262,9 +262,15 @@ var SafeInnerHtml = function (_Component) {
     key: "render",
     value: function render() {
       var result = this.renderNodes(this.fragment.childNodes);
-      var ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
-      var wrapperProps = (0, _pickBy2.default)(function (v, k) {
-        return (0, _some2.default)((0, _startsWith2.default)(k))(ignored);
+      var ignored = ["attribute-", "element-", "children", "wrapper", "decode", "rootUrl"];
+
+      var ignoreKey = function ignoreKey(key) {
+        return function (ignore) {
+          return new RegExp("^" + ignore, "i").test(key);
+        };
+      };
+      var wrapperProps = (0, _pickBy2.default)(function (value, key) {
+        return !(0, _some2.default)(ignoreKey(key))(ignored);
       })(this.props);
 
       return result.length === 0 ? null : _react2.default.createElement(this.props.wrapper, wrapperProps, result);
@@ -282,7 +288,8 @@ var SafeInnerHtml = function (_Component) {
 SafeInnerHtml.propTypes = {
   children: _react2.default.PropTypes.string.isRequired,
   wrapper: _react2.default.PropTypes.string,
-  decode: _react2.default.PropTypes.bool.isRequired
+  decode: _react2.default.PropTypes.bool.isRequired,
+  rootUrl: _react2.default.PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {

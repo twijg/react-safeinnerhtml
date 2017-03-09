@@ -177,8 +177,17 @@ class SafeInnerHtml extends Component {
 
   render() {
     const result = this.renderNodes(this.fragment.childNodes);
-    const ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
-    const wrapperProps = pickBy((v, k) => some(startsWith(k))(ignored))(
+    const ignored = [
+      "attribute-",
+      "element-",
+      "children",
+      "wrapper",
+      "decode",
+      "rootUrl"
+    ];
+
+    const ignoreKey = key => ignore => new RegExp(`^${ignore}`, "i").test(key);
+    const wrapperProps = pickBy((value, key) => !some(ignoreKey(key))(ignored))(
       this.props
     );
 
@@ -197,7 +206,8 @@ class SafeInnerHtml extends Component {
 SafeInnerHtml.propTypes = {
   children: React.PropTypes.string.isRequired,
   wrapper: React.PropTypes.string,
-  decode: React.PropTypes.bool.isRequired
+  decode: React.PropTypes.bool.isRequired,
+  rootUrl: React.PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {
