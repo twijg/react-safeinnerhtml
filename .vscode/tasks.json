@@ -1,0 +1,39 @@
+{
+  "version": "0.1.0",
+  "_runner": "terminal",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "command": "yarn",
+  "tasks": [
+    {
+      "taskName": "Install"
+    },
+    {
+      "taskName": "Build",
+      "isBuildCommand": true,
+      "args": [
+        "build"
+      ]
+    },
+    {
+      "taskName": "Test",
+      "isTestCommand": true,
+      "args": [
+        "test"
+      ]
+    },
+    {
+      "taskName": "Prettier",
+      "args": [
+        "prettier"
+      ]
+    },
+    {
+      "taskName": "Lint",
+      "args": [
+        "lint"
+      ]
+    }
+  ]
+}

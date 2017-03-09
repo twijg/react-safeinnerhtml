@@ -7,20 +7,37 @@
     "react-component",
     "html",
     "react-dom",
-    "dom"
+    "dom",
+    "javascript"
   ],
   "author": "Twijg IT B.V. <info@twijg-it.nl>",
+  "contributors": [
+    "Wiebe Cnossen <wiebe@twijg-it.nl>",
+    "Jelle de Jong <jelle@twijg-it.nl>"
+  ],
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "lint": "eslint -c .eslintrc src/**/*.js*",
     "prettier": "prettier --write src/**/*.js*",
     "test": "",
-    "build": "babel src/ --out-dir dist/"
+    "build": "babel src/ --out-dir dist/",
+    "lint-staged": "lint-staged",
+    "lint-staged:eslint": "eslint -c .eslintrc",
+    "lint-staged:prettier": "prettier --write"
   },
+  "lint-staged": {
+    "src/**/*.{js,jsx}": [
+      "lint-staged:prettier",
+      "lint-staged:eslint",
+      "git add"
+    ]
+  },
+  "pre-commit": [
+    "lint-staged"
+  ],
   "peerDependencies": {
     "classnames": ">=2.2.0",
-    "empty": ">=0.10.1",
     "lodash": ">=4.0.0",
     "react": ">=15.0.0"
   },
@@ -31,13 +48,18 @@
     "babel-preset-react": "6.23.0",
     "babel-preset-stage-2": "6.22.0",
     "classnames": ">=2.2.0",
-    "empty": ">=0.10.1",
+    "lint-staged": "3.3.1",
     "lodash": ">=4.0.0",
+    "pre-commit": "1.2.2",
     "prettier": "0.21.0",
     "react": ">=15.0.0"
   },
+  "homepage": "https://github.com/twijg/react-safeinnerhtml#react-safeinnerhtml",
   "repository": {
     "url": "https://github.com/twijg/react-safeinnerhtml",
     "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/twijg/react-safeinnerhtml/issues"
   }
 }
