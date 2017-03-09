@@ -36,6 +36,9 @@
   "pre-commit": [
     "lint-staged"
   ],
+  "files": [
+    "dist"
+  ],
   "peerDependencies": {
     "classnames": ">=2.2.0",
     "lodash": ">=4.0.0",
