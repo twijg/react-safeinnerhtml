@@ -18,3 +18,11 @@ const MyComponent = () =>
 
 render(<MyComponent />, document.getElementById("root"));
 ```
+
+Publish this package:
+
+```
+yarn build
+npm login
+npm publish
+```
