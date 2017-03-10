@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
