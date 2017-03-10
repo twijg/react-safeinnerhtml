@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -36,9 +36,6 @@
   "pre-commit": [
     "lint-staged"
   ],
-  "directories": {
-    "lib": "./dist"
-  },
   "peerDependencies": {
     "classnames": ">=2.2.0",
     "lodash": ">=4.0.0",
