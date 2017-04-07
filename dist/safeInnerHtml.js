@@ -32,10 +32,6 @@ var _some = require("lodash/fp/some");
 
 var _some2 = _interopRequireDefault(_some);
 
-var _startsWith = require("lodash/fp/startsWith");
-
-var _startsWith2 = _interopRequireDefault(_startsWith);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }

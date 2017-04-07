@@ -261,5 +261,5 @@ var unwrap = exports.unwrap = function unwrap(maybeArray) {
 
 /** Parses HTML and returns body element */
 var parseHTML = exports.parseHTML = function parseHTML(innerHTML) {
-  return new DOMParser().parseFromString(innerHTML, "text/html").body;
+  return new DOMParser().parseFromString(innerHTML, "application/xhtml+xml");
 };

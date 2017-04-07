@@ -5,7 +5,6 @@ import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import React, { Component } from "react";
 import some from "lodash/fp/some";
-import startsWith from "lodash/fp/startsWith";
 
 class SafeInnerHtml extends Component {
   constructor(props) {

@@ -227,4 +227,4 @@ export const unwrap = maybeArray =>
 
 /** Parses HTML and returns body element */
 export const parseHTML = innerHTML =>
-  new DOMParser().parseFromString(innerHTML, "text/html").body;
+  new DOMParser().parseFromString(innerHTML, "application/xhtml+xml");
