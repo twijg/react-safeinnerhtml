@@ -19,12 +19,17 @@ const MyComponent = () =>
 render(<MyComponent />, document.getElementById("root"));
 ```
 
-Publish this package:
+Build this package:
 
 ```
 yarn prettier
 yarn lint
 yarn build
+```
+
+Publish this package:
+
+```
 npm login
 npm publish
 ```
