@@ -22,6 +22,8 @@ render(<MyComponent />, document.getElementById("root"));
 Publish this package:
 
 ```
+yarn prettier
+yarn lint
 yarn build
 npm login
 npm publish
