@@ -185,7 +185,8 @@ class SafeInnerHtml extends Component {
       "children",
       "wrapper",
       "decode",
-      "rootUrl"
+      "rootUrl",
+      "xhtml"
     ];
 
     const ignoreKey = key => ignore => new RegExp(`^${ignore}`, "i").test(key);

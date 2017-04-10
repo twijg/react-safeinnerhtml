@@ -262,7 +262,7 @@ var SafeInnerHtml = function (_Component) {
     key: "render",
     value: function render() {
       var result = this.renderNodes(this.fragment.childNodes);
-      var ignored = ["attribute-", "element-", "children", "wrapper", "decode", "rootUrl"];
+      var ignored = ["attribute-", "element-", "children", "wrapper", "decode", "rootUrl", "xhtml"];
 
       var ignoreKey = function ignoreKey(key) {
         return function (ignore) {
