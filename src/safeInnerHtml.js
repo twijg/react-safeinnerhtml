@@ -71,17 +71,17 @@ class SafeInnerHtml extends Component {
     return `${elementName}.${key}`;
   }
 
-  initialize({ children, decode = false, rootUrl = "/" }) {
+  initialize({ children, decode = false, rootUrl = "/", xhtml = false }) {
     this.innerHTML = unwrap(children);
-    this.fragment = this.createFragment(this.innerHTML, decode);
+    this.fragment = this.createFragment(this.innerHTML, decode, xhtml);
     this.scripts = [];
     this.css = [];
     this.rootUrl = rootUrl;
   }
 
-  createFragment(innerHTML, decode) {
-    const root = parseHTML(innerHTML);
-    return decode ? this.createFragment(root.textContent) : root;
+  createFragment(innerHTML, decode, xhtml = false) {
+    const root = parseHTML(innerHTML, xhtml);
+    return decode ? this.createFragment(root.textContent, false, xhtml) : root;
   }
 
   componentWillReceiveProps({ children, decode, rootUrl }) {
@@ -168,7 +168,10 @@ class SafeInnerHtml extends Component {
             node: { localName, nodeType, nodeValue, attributes, childNodes },
             key
           }
-        ) => nodeType === 1 ? this.createElement({ localName, attributes, childNodes, key }) : nodeValue
+        ) =>
+          nodeType === 1
+            ? this.createElement({ localName, attributes, childNodes, key })
+            : nodeValue
       ),
       compact
     )(nodes);
@@ -206,12 +209,14 @@ SafeInnerHtml.propTypes = {
   children: React.PropTypes.string.isRequired,
   wrapper: React.PropTypes.string,
   decode: React.PropTypes.bool.isRequired,
+  xhtml: React.PropTypes.bool.isRequired,
   rootUrl: React.PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
-  decode: false
+  decode: false,
+  xhtml: false
 };
 
 export default SafeInnerHtml;

@@ -1,10 +1,13 @@
 import classNames from "classnames";
 
-export const sequence = ((lastId = 0) => class Sequence {
-  static get uniqueId() {
-    return `${Date.now().toString(36)}_${(++lastId).toString(36)}_${Math.random().toString(36).substring(2)}`;
-  }
-})();
+export const sequence = ((lastId = 0) =>
+  class Sequence {
+    static get uniqueId() {
+      return `${Date.now().toString(36)}_${(++lastId).toString(36)}_${Math.random()
+        .toString(36)
+        .substring(2)}`;
+    }
+  })();
 
 const reactHtmlProps = {
   // Renamed attributes
@@ -226,5 +229,7 @@ export const unwrap = maybeArray =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
 /** Parses HTML and returns body element */
-export const parseHTML = innerHTML =>
-  new DOMParser().parseFromString(innerHTML, "application/xhtml+xml");
+export const parseHTML = (innerHTML, xhtml = false) =>
+  xhtml
+    ? new DOMParser().parseFromString(innerHTML, "application/xhtml+xml")
+    : new DOMParser().parseFromString(innerHTML, "text/html").body;
