@@ -32,10 +32,6 @@ var _some = require("lodash/fp/some");
 
 var _some2 = _interopRequireDefault(_some);
 
-var _startsWith = require("lodash/fp/startsWith");
-
-var _startsWith2 = _interopRequireDefault(_startsWith);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -131,10 +127,12 @@ var SafeInnerHtml = function (_Component) {
           _ref3$decode = _ref3.decode,
           decode = _ref3$decode === undefined ? false : _ref3$decode,
           _ref3$rootUrl = _ref3.rootUrl,
-          rootUrl = _ref3$rootUrl === undefined ? "/" : _ref3$rootUrl;
+          rootUrl = _ref3$rootUrl === undefined ? "/" : _ref3$rootUrl,
+          _ref3$xhtml = _ref3.xhtml,
+          xhtml = _ref3$xhtml === undefined ? false : _ref3$xhtml;
 
       this.innerHTML = (0, _utils.unwrap)(children);
-      this.fragment = this.createFragment(this.innerHTML, decode);
+      this.fragment = this.createFragment(this.innerHTML, decode, xhtml);
       this.scripts = [];
       this.css = [];
       this.rootUrl = rootUrl;
@@ -142,8 +140,10 @@ var SafeInnerHtml = function (_Component) {
   }, {
     key: "createFragment",
     value: function createFragment(innerHTML, decode) {
-      var root = (0, _utils.parseHTML)(innerHTML);
-      return decode ? this.createFragment(root.textContent) : root;
+      var xhtml = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+      var root = (0, _utils.parseHTML)(innerHTML, xhtml);
+      return decode ? this.createFragment(root.textContent, false, xhtml) : root;
     }
   }, {
     key: "componentWillReceiveProps",
@@ -289,12 +289,14 @@ SafeInnerHtml.propTypes = {
   children: _react2.default.PropTypes.string.isRequired,
   wrapper: _react2.default.PropTypes.string,
   decode: _react2.default.PropTypes.bool.isRequired,
+  xhtml: _react2.default.PropTypes.bool.isRequired,
   rootUrl: _react2.default.PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
-  decode: false
+  decode: false,
+  xhtml: false
 };
 
 exports.default = SafeInnerHtml;
