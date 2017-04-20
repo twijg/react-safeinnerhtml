@@ -28,6 +28,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require("prop-types");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _some = require("lodash/fp/some");
 
 var _some2 = _interopRequireDefault(_some);
@@ -150,11 +154,12 @@ var SafeInnerHtml = function (_Component) {
     value: function componentWillReceiveProps(_ref4) {
       var children = _ref4.children,
           decode = _ref4.decode,
-          rootUrl = _ref4.rootUrl;
+          rootUrl = _ref4.rootUrl,
+          xhtml = _ref4.xhtml;
 
       var innerHTML = (0, _utils.unwrap)(children);
       if (children !== this.innerHTML) {
-        this.initialize({ children: innerHTML, decode: decode, rootUrl: rootUrl });
+        this.initialize({ children: innerHTML, decode: decode, rootUrl: rootUrl, xhtml: xhtml });
       }
     }
   }, {
@@ -286,11 +291,11 @@ var SafeInnerHtml = function (_Component) {
 }(_react.Component);
 
 SafeInnerHtml.propTypes = {
-  children: _react2.default.PropTypes.string.isRequired,
-  wrapper: _react2.default.PropTypes.string,
-  decode: _react2.default.PropTypes.bool.isRequired,
-  xhtml: _react2.default.PropTypes.bool.isRequired,
-  rootUrl: _react2.default.PropTypes.string
+  children: _propTypes2.default.string.isRequired,
+  wrapper: _propTypes2.default.string,
+  decode: _propTypes2.default.bool.isRequired,
+  xhtml: _propTypes2.default.bool.isRequired,
+  rootUrl: _propTypes2.default.string
 };
 
 SafeInnerHtml.defaultProps = {

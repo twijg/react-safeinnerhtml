@@ -4,6 +4,7 @@ import flow from "lodash/flow";
 import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import some from "lodash/fp/some";
 
 class SafeInnerHtml extends Component {
@@ -84,10 +85,10 @@ class SafeInnerHtml extends Component {
     return decode ? this.createFragment(root.textContent, false, xhtml) : root;
   }
 
-  componentWillReceiveProps({ children, decode, rootUrl }) {
+  componentWillReceiveProps({ children, decode, rootUrl, xhtml }) {
     const innerHTML = unwrap(children);
     if (children !== this.innerHTML) {
-      this.initialize({ children: innerHTML, decode, rootUrl });
+      this.initialize({ children: innerHTML, decode, rootUrl, xhtml });
     }
   }
 
@@ -130,7 +131,8 @@ class SafeInnerHtml extends Component {
     const props = htmlProps(
       flow(
         map(attribute =>
-          this.chooseAttribute({ attribute, key, elementName: localName })),
+          this.chooseAttribute({ attribute, key, elementName: localName })
+        ),
         compact
       )(attributes),
       key
@@ -163,15 +165,13 @@ class SafeInnerHtml extends Component {
       }),
       compact,
       map(
-        (
-          {
-            node: { localName, nodeType, nodeValue, attributes, childNodes },
-            key
-          }
-        ) =>
-          nodeType === 1
+        ({
+          node: { localName, nodeType, nodeValue, attributes, childNodes },
+          key
+        }) =>
+          (nodeType === 1
             ? this.createElement({ localName, attributes, childNodes, key })
-            : nodeValue
+            : nodeValue)
       ),
       compact
     )(nodes);
@@ -200,18 +200,20 @@ class SafeInnerHtml extends Component {
   }
 
   documentWrite(key) {
-    return "(function(html){if(html==null)return;" +
+    return (
+      "(function(html){if(html==null)return;" +
       `var e=document.querySelector('${this.selector(key)}');` +
-      'if(e){e.innerHTML=html;e.style.display="inline";}})';
+      'if(e){e.innerHTML=html;e.style.display="inline";}})'
+    );
   }
 }
 
 SafeInnerHtml.propTypes = {
-  children: React.PropTypes.string.isRequired,
-  wrapper: React.PropTypes.string,
-  decode: React.PropTypes.bool.isRequired,
-  xhtml: React.PropTypes.bool.isRequired,
-  rootUrl: React.PropTypes.string
+  children: PropTypes.string.isRequired,
+  wrapper: PropTypes.string,
+  decode: PropTypes.bool.isRequired,
+  xhtml: PropTypes.bool.isRequired,
+  rootUrl: PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {
