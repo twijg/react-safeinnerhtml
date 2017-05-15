@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -39,7 +39,7 @@
   "peerDependencies": {
     "classnames": ">=2.2.0",
     "lodash": ">=4.0.0",
-    "prop-types": "15.5.8",
+    "prop-types": ">=15.5.8",
     "react": ">=15.0.0"
   },
   "devDependencies": {
