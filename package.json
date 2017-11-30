@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -33,7 +33,7 @@
     ]
   },
   "pre-commit": ["lint-staged"],
-  "peerDependencies": {
+  "dependencies": {
     "classnames": "^2.2",
     "lodash": "^4.0.0",
     "prop-types": "^15.5.8",
@@ -45,15 +45,12 @@
     "babel-preset-env": "^1.4.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
-    "classnames": "^2.2",
     "cross-env": "^5",
     "eslint": "^4",
     "eslint-plugin-react": "^7",
     "lint-staged": "^5",
-    "lodash": "^4",
     "pre-commit": "^1",
-    "prettier": "^1",
-    "react": "^16"
+    "prettier": "^1"
   },
   "homepage": "https://github.com/twijg/react-safeinnerhtml",
   "repository": {
