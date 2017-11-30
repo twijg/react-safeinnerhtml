@@ -216,7 +216,7 @@ const reactHtmlProps = {
   zoomandpan: "zoomAndPan"
 };
 
-export const htmlProps = (namedNodeMap, key) => {
+export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
   const temp = [...namedNodeMap].reduce(
     (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => {
       o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
@@ -226,8 +226,7 @@ export const htmlProps = (namedNodeMap, key) => {
   );
   return {
     ...temp,
-    className:
-      "style" in temp ? classNames(temp.className, key) : temp.className,
+    className: keyAsClass ? classNames(temp.className, key) : temp.className,
     key
   };
 };

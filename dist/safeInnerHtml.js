@@ -220,7 +220,7 @@ var SafeInnerHtml = function (_Component) {
 
       var props = (0, _utils.htmlProps)((0, _flow2.default)((0, _map2.default)(function (attribute) {
         return _this3.chooseAttribute({ attribute: attribute, key: key, elementName: localName });
-      }), _compact2.default)(attributes), key);
+      }), _compact2.default)(attributes), key, "style" in attributes);
       var sub = childNodes.length && this.renderNodes(childNodes);
       var children = sub && sub.length > 0 ? sub : undefined;
 

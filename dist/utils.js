@@ -243,6 +243,8 @@ var reactHtmlProps = {
 };
 
 var htmlProps = exports.htmlProps = function htmlProps(namedNodeMap, key) {
+  var keyAsClass = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
   var temp = [].concat(_toConsumableArray(namedNodeMap)).reduce(function (o, _ref) {
     var localName = _ref.localName,
         nodeValue = _ref.nodeValue,
@@ -253,7 +255,7 @@ var htmlProps = exports.htmlProps = function htmlProps(namedNodeMap, key) {
     return o;
   }, {});
   return _extends({}, temp, {
-    className: "style" in temp ? (0, _classnames2.default)(temp.className, key) : temp.className,
+    className: keyAsClass ? (0, _classnames2.default)(temp.className, key) : temp.className,
     key: key
   });
 };

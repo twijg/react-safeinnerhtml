@@ -135,7 +135,8 @@ class SafeInnerHtml extends Component {
         ),
         compact
       )(attributes),
-      key
+      key,
+      "style" in attributes
     );
     const sub = childNodes.length && this.renderNodes(childNodes);
     const children = sub && sub.length > 0 ? sub : undefined;
