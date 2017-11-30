@@ -3,4 +3,6 @@
 .eslintrc
 .vscode/
 *.lock
+run/
+example/
 src/

@@ -15,8 +15,6 @@ var _classnames2 = _interopRequireDefault(_classnames);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -250,9 +248,14 @@ var htmlProps = exports.htmlProps = function htmlProps(namedNodeMap, key) {
         nodeValue = _ref.nodeValue,
         _ref$lowerName = _ref.lowerName,
         lowerName = _ref$lowerName === undefined ? localName.toLowerCase() : _ref$lowerName;
-    return _extends({}, o, _defineProperty({}, reactHtmlProps[lowerName] || lowerName, nodeValue));
+
+    o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
+    return o;
   }, {});
-  return _extends({}, temp, { className: (0, _classnames2.default)(temp.className, key), key: key });
+  return _extends({}, temp, {
+    className: "style" in temp ? (0, _classnames2.default)(temp.className, key) : temp.className,
+    key: key
+  });
 };
 
 var unwrap = exports.unwrap = function unwrap(maybeArray) {

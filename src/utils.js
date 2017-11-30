@@ -1,12 +1,15 @@
 import classNames from "classnames";
 
-export const sequence = ((lastId = 0) => class Sequence {
-  static get uniqueId() {
-    return `${Date.now().toString(36)}_${(++lastId).toString(36)}_${Math.random()
-      .toString(36)
-      .substring(2)}`;
-  }
-})();
+export const sequence = ((lastId = 0) =>
+  class Sequence {
+    static get uniqueId() {
+      return `${Date.now().toString(36)}_${(++lastId).toString(
+        36
+      )}_${Math.random()
+        .toString(36)
+        .substring(2)}`;
+    }
+  })();
 
 const reactHtmlProps = {
   // Renamed attributes
@@ -215,20 +218,25 @@ const reactHtmlProps = {
 
 export const htmlProps = (namedNodeMap, key) => {
   const temp = [...namedNodeMap].reduce(
-    (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => ({
-      ...o,
-      [reactHtmlProps[lowerName] || lowerName]: nodeValue
-    }),
+    (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => {
+      o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
+      return o;
+    },
     {}
   );
-  return { ...temp, className: classNames(temp.className, key), key };
+  return {
+    ...temp,
+    className:
+      "style" in temp ? classNames(temp.className, key) : temp.className,
+    key
+  };
 };
 
 export const unwrap = maybeArray =>
-  (Array.isArray(maybeArray) ? maybeArray[0] : maybeArray);
+  Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
 /** Parses HTML and returns body element */
 export const parseHTML = (innerHTML, xhtml = false) =>
-  (xhtml
+  xhtml
     ? new DOMParser().parseFromString(innerHTML, "application/xhtml+xml")
-    : new DOMParser().parseFromString(innerHTML, "text/html").body);
+    : new DOMParser().parseFromString(innerHTML, "text/html").body;

@@ -183,7 +183,7 @@ var SafeInnerHtml = function (_Component) {
         document.querySelector("body").appendChild(script);
         _this2.insertedNodes.push(script);
       });
-      if (this.css.length) {
+      if (this.css.length > 0) {
         var style = document.createElement("style");
         style.textContent = this.css.join("\r\n");
         document.querySelector("head").appendChild(style);

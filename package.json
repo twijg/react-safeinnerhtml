@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -32,9 +32,7 @@
       "git add"
     ]
   },
-  "pre-commit": [
-    "lint-staged"
-  ],
+  "pre-commit": ["lint-staged"],
   "peerDependencies": {
     "classnames": "^2.2",
     "lodash": "^4.0.0",
@@ -46,6 +44,7 @@
     "babel-eslint": "^8",
     "babel-preset-env": "^1.4.0",
     "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
     "classnames": "^2.2",
     "cross-env": "^5",
     "eslint": "^4",

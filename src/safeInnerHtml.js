@@ -106,7 +106,7 @@ class SafeInnerHtml extends Component {
       document.querySelector("body").appendChild(script);
       this.insertedNodes.push(script);
     });
-    if (this.css.length) {
+    if (this.css.length > 0) {
       const style = document.createElement("style");
       style.textContent = this.css.join("\r\n");
       document.querySelector("head").appendChild(style);
@@ -146,9 +146,8 @@ class SafeInnerHtml extends Component {
     }
 
     const defaultElement = { type: localName, props };
-    const plugElement = typeof plug === "function"
-      ? plug(defaultElement)
-      : undefined;
+    const plugElement =
+      typeof plug === "function" ? plug(defaultElement) : undefined;
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
       const { type, props } = element;
@@ -169,9 +168,9 @@ class SafeInnerHtml extends Component {
           node: { localName, nodeType, nodeValue, attributes, childNodes },
           key
         }) =>
-          (nodeType === 1
+          nodeType === 1
             ? this.createElement({ localName, attributes, childNodes, key })
-            : nodeValue)
+            : nodeValue
       ),
       compact
     )(nodes);
