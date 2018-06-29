@@ -3,6 +3,7 @@ import classNames from "classnames";
 export const sequence = ((lastId = 0) =>
   class Sequence {
     static get uniqueId() {
+      // eslint-disable-next-line no-plusplus,no-param-reassign
       return `${Date.now().toString(36)}_${(++lastId).toString(
         36
       )}_${Math.random()
@@ -219,6 +220,7 @@ const reactHtmlProps = {
 export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
   const temp = [...namedNodeMap].reduce(
     (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => {
+      // eslint-disable-next-line no-param-reassign
       o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
       return o;
     },

@@ -1,11 +1,14 @@
-import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
-import compact from "lodash/fp/compact";
-import flow from "lodash/flow";
-import map from "lodash/fp/map";
-import pickBy from "lodash/fp/pickBy";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+
+import compact from "lodash/fp/compact";
+import flow from "lodash/fp/flow";
+import map from "lodash/fp/map";
+import pickBy from "lodash/fp/pickBy";
 import some from "lodash/fp/some";
+import get from "lodash/fp/get";
+
+import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
 
 class SafeInnerHtml extends Component {
   constructor(props) {
@@ -14,6 +17,49 @@ class SafeInnerHtml extends Component {
     this.chooseAttribute = this.chooseAttribute.bind(this);
     this.chooseNode = this.chooseNode.bind(this);
     this.addCss = this.addCss.bind(this);
+    this.insertedNodes = [];
+  }
+
+  componentDidMount() {
+    this.scripts.forEach(({ key, code }) => {
+      const script = document.createElement("script");
+      script.textContent = code.replace(
+        /\bdocument\.write\b/g,
+        this.documentWrite(key)
+      );
+      document.querySelector("body").appendChild(script);
+      this.insertedNodes.push(script);
+    });
+    if (this.css.length > 0) {
+      const style = document.createElement("style");
+      style.textContent = this.css.join("\r\n");
+      document.querySelector("head").appendChild(style);
+      this.insertedNodes.push(style);
+    }
+  }
+
+  componentWillReceiveProps({ children, decode, rootUrl, xhtml }) {
+    const innerHTML = unwrap(children);
+    if (children !== this.innerHTML) {
+      this.initialize({ children: innerHTML, decode, rootUrl, xhtml });
+    }
+  }
+
+  shouldComponentUpdate({ children: innerHTML }) {
+    const { children: currentChildren } = this.props;
+    return innerHTML !== currentChildren[0];
+  }
+
+  componentWillUpdate() {
+    this.componentWillUnmount();
+  }
+
+  componentDidUpdate() {
+    this.componentDidMount();
+  }
+
+  componentWillUnmount() {
+    this.insertedNodes.forEach(node => node.parentNode.removeChild(node));
     this.insertedNodes = [];
   }
 
@@ -29,7 +75,8 @@ class SafeInnerHtml extends Component {
       return newAttribute;
     };
 
-    const plug = this.props[`attribute-${localName.toLowerCase()}`];
+    const plug =
+      get(`attribute-${localName.toLowerCase()}`)(this.props) || false;
     if (typeof plug === "function") {
       const result = plug(
         { attribute, key, elementName },
@@ -68,6 +115,7 @@ class SafeInnerHtml extends Component {
     return node;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   selector(key, elementName = "") {
     return `${elementName}.${key}`;
   }
@@ -85,48 +133,6 @@ class SafeInnerHtml extends Component {
     return decode ? this.createFragment(root.textContent, false, xhtml) : root;
   }
 
-  componentWillReceiveProps({ children, decode, rootUrl, xhtml }) {
-    const innerHTML = unwrap(children);
-    if (children !== this.innerHTML) {
-      this.initialize({ children: innerHTML, decode, rootUrl, xhtml });
-    }
-  }
-
-  shouldComponentUpdate({ children: innerHTML }) {
-    return innerHTML !== this.props.children[0];
-  }
-
-  componentDidMount() {
-    this.scripts.forEach(({ key, code }) => {
-      const script = document.createElement("script");
-      script.textContent = code.replace(
-        /\bdocument\.write\b/g,
-        this.documentWrite(key)
-      );
-      document.querySelector("body").appendChild(script);
-      this.insertedNodes.push(script);
-    });
-    if (this.css.length > 0) {
-      const style = document.createElement("style");
-      style.textContent = this.css.join("\r\n");
-      document.querySelector("head").appendChild(style);
-      this.insertedNodes.push(style);
-    }
-  }
-
-  componentWillUnmount() {
-    this.insertedNodes.forEach(node => node.parentNode.removeChild(node));
-    this.insertedNodes = [];
-  }
-
-  componentDidUpdate() {
-    this.componentDidMount();
-  }
-
-  componentWillUpdate() {
-    this.componentWillUnmount();
-  }
-
   createElement({ localName, attributes, childNodes, key }) {
     const props = htmlProps(
       flow(
@@ -141,7 +147,7 @@ class SafeInnerHtml extends Component {
     const sub = childNodes.length && this.renderNodes(childNodes);
     const children = sub && sub.length > 0 ? sub : undefined;
 
-    const plug = this.props[`element-${localName}`];
+    const plug = get(`element-${localName}`)(this.props) || false;
     if (plug === false) {
       return;
     }
@@ -151,12 +157,21 @@ class SafeInnerHtml extends Component {
       typeof plug === "function" ? plug(defaultElement) : undefined;
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
-      const { type, props } = element;
-      return React.createElement(type, props, children);
+      const { type, props: elementProps } = element;
+      React.createElement(type, elementProps, children);
     }
   }
 
+  documentWrite(key) {
+    return (
+      "(function(html){if(html==null)return;" +
+      `var e=document.querySelector('${this.selector(key)}');` +
+      'if(e){e.innerHTML=html;e.style.display="inline";}})'
+    );
+  }
+
   renderNodes(nodes) {
+    // eslint-disable-next-line lodash-fp/prefer-composition-grouping
     return flow(
       map(node => ({ node, key: sequence.uniqueId })),
       map(({ node, key }) => {
@@ -194,32 +209,30 @@ class SafeInnerHtml extends Component {
       this.props
     );
 
+    const { wrapper } = this.props;
     return result.length === 0
       ? null
-      : React.createElement(this.props.wrapper, wrapperProps, result);
-  }
-
-  documentWrite(key) {
-    return (
-      "(function(html){if(html==null)return;" +
-      `var e=document.querySelector('${this.selector(key)}');` +
-      'if(e){e.innerHTML=html;e.style.display="inline";}})'
-    );
+      : React.createElement(wrapper, wrapperProps, result);
   }
 }
 
 SafeInnerHtml.propTypes = {
   children: PropTypes.string.isRequired,
-  wrapper: PropTypes.string,
-  decode: PropTypes.bool.isRequired,
-  xhtml: PropTypes.bool.isRequired,
+  wrapper: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.func,
+    PropTypes.object
+  ]),
+  decode: PropTypes.bool,
+  xhtml: PropTypes.bool,
   rootUrl: PropTypes.string
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
   decode: false,
-  xhtml: false
+  xhtml: false,
+  rootUrl: undefined
 };
 
 export default SafeInnerHtml;

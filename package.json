@@ -21,14 +21,12 @@
     "lint": "eslint -c .eslintrc.yml src/**/*.js*",
     "prettier": "prettier --write src/**/*.js*",
     "build": "cross-env NODE_ENV=production babel src/ --out-dir dist/",
-    "lint-staged": "lint-staged",
-    "lint-staged:eslint": "eslint -c .eslintrc",
-    "lint-staged:prettier": "prettier --write"
+    "lint-staged": "lint-staged"
   },
   "lint-staged": {
     "src/**/*.{js,jsx}": [
-      "lint-staged:prettier",
-      "lint-staged:eslint",
+      "prettier --write",
+      "eslint -c .eslintrc.yml",
       "git add"
     ]
   },
