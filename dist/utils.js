@@ -29,6 +29,7 @@ var sequence = exports.sequence = function () {
     _createClass(Sequence, null, [{
       key: "uniqueId",
       get: function get() {
+        // eslint-disable-next-line no-plusplus,no-param-reassign
         return Date.now().toString(36) + "_" + (++lastId).toString(36) + "_" + Math.random().toString(36).substring(2);
       }
     }]);
@@ -251,6 +252,7 @@ var htmlProps = exports.htmlProps = function htmlProps(namedNodeMap, key) {
         _ref$lowerName = _ref.lowerName,
         lowerName = _ref$lowerName === undefined ? localName.toLowerCase() : _ref$lowerName;
 
+    // eslint-disable-next-line no-param-reassign
     o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
     return o;
   }, {});

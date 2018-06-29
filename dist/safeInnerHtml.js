@@ -6,13 +6,19 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = require("./utils");
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require("prop-types");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _compact = require("lodash/fp/compact");
 
 var _compact2 = _interopRequireDefault(_compact);
 
-var _flow = require("lodash/flow");
+var _flow = require("lodash/fp/flow");
 
 var _flow2 = _interopRequireDefault(_flow);
 
@@ -24,17 +30,15 @@ var _pickBy = require("lodash/fp/pickBy");
 
 var _pickBy2 = _interopRequireDefault(_pickBy);
 
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _propTypes = require("prop-types");
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
 var _some = require("lodash/fp/some");
 
 var _some2 = _interopRequireDefault(_some);
+
+var _get = require("lodash/fp/get");
+
+var _get2 = _interopRequireDefault(_get);
+
+var _utils = require("./utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -61,16 +65,76 @@ var SafeInnerHtml = function (_Component) {
   }
 
   _createClass(SafeInnerHtml, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      this.scripts.forEach(function (_ref) {
+        var key = _ref.key,
+            code = _ref.code;
+
+        var script = document.createElement("script");
+        script.textContent = code.replace(/\bdocument\.write\b/g, _this2.documentWrite(key));
+        document.querySelector("body").appendChild(script);
+        _this2.insertedNodes.push(script);
+      });
+      if (this.css.length > 0) {
+        var style = document.createElement("style");
+        style.textContent = this.css.join("\r\n");
+        document.querySelector("head").appendChild(style);
+        this.insertedNodes.push(style);
+      }
+    }
+  }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(_ref2) {
+      var children = _ref2.children,
+          decode = _ref2.decode,
+          rootUrl = _ref2.rootUrl,
+          xhtml = _ref2.xhtml;
+
+      var innerHTML = (0, _utils.unwrap)(children);
+      if (children !== this.innerHTML) {
+        this.initialize({ children: innerHTML, decode: decode, rootUrl: rootUrl, xhtml: xhtml });
+      }
+    }
+  }, {
+    key: "shouldComponentUpdate",
+    value: function shouldComponentUpdate(_ref3) {
+      var innerHTML = _ref3.children;
+      var currentChildren = this.props.children;
+
+      return innerHTML !== currentChildren[0];
+    }
+  }, {
+    key: "componentWillUpdate",
+    value: function componentWillUpdate() {
+      this.componentWillUnmount();
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      this.componentDidMount();
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.insertedNodes.forEach(function (node) {
+        return node.parentNode.removeChild(node);
+      });
+      this.insertedNodes = [];
+    }
+  }, {
     key: "addCss",
     value: function addCss(value) {
       this.css.push(value);
     }
   }, {
     key: "chooseAttribute",
-    value: function chooseAttribute(_ref) {
-      var attribute = _ref.attribute,
-          key = _ref.key,
-          elementName = _ref.elementName;
+    value: function chooseAttribute(_ref4) {
+      var attribute = _ref4.attribute,
+          key = _ref4.key,
+          elementName = _ref4.elementName;
       var localName = attribute.localName,
           nodeValue = attribute.nodeValue;
 
@@ -80,7 +144,7 @@ var SafeInnerHtml = function (_Component) {
         return newAttribute;
       };
 
-      var plug = this.props["attribute-" + localName.toLowerCase()];
+      var plug = (0, _get2.default)("attribute-" + localName.toLowerCase())(this.props) || false;
       if (typeof plug === "function") {
         var result = plug({ attribute: attribute, key: key, elementName: elementName }, { addCss: this.addCss });
         if (result !== undefined) {
@@ -104,9 +168,9 @@ var SafeInnerHtml = function (_Component) {
     }
   }, {
     key: "chooseNode",
-    value: function chooseNode(_ref2) {
-      var node = _ref2.node,
-          key = _ref2.key;
+    value: function chooseNode(_ref5) {
+      var node = _ref5.node,
+          key = _ref5.key;
 
       if (node instanceof HTMLScriptElement) {
         this.scripts.push({ key: key, code: node.textContent });
@@ -117,6 +181,9 @@ var SafeInnerHtml = function (_Component) {
 
       return node;
     }
+
+    // eslint-disable-next-line class-methods-use-this
+
   }, {
     key: "selector",
     value: function selector(key) {
@@ -126,14 +193,14 @@ var SafeInnerHtml = function (_Component) {
     }
   }, {
     key: "initialize",
-    value: function initialize(_ref3) {
-      var children = _ref3.children,
-          _ref3$decode = _ref3.decode,
-          decode = _ref3$decode === undefined ? false : _ref3$decode,
-          _ref3$rootUrl = _ref3.rootUrl,
-          rootUrl = _ref3$rootUrl === undefined ? "/" : _ref3$rootUrl,
-          _ref3$xhtml = _ref3.xhtml,
-          xhtml = _ref3$xhtml === undefined ? false : _ref3$xhtml;
+    value: function initialize(_ref6) {
+      var children = _ref6.children,
+          _ref6$decode = _ref6.decode,
+          decode = _ref6$decode === undefined ? false : _ref6$decode,
+          _ref6$rootUrl = _ref6.rootUrl,
+          rootUrl = _ref6$rootUrl === undefined ? "/" : _ref6$rootUrl,
+          _ref6$xhtml = _ref6.xhtml,
+          xhtml = _ref6$xhtml === undefined ? false : _ref6$xhtml;
 
       this.innerHTML = (0, _utils.unwrap)(children);
       this.fragment = this.createFragment(this.innerHTML, decode, xhtml);
@@ -148,65 +215,6 @@ var SafeInnerHtml = function (_Component) {
 
       var root = (0, _utils.parseHTML)(innerHTML, xhtml);
       return decode ? this.createFragment(root.textContent, false, xhtml) : root;
-    }
-  }, {
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(_ref4) {
-      var children = _ref4.children,
-          decode = _ref4.decode,
-          rootUrl = _ref4.rootUrl,
-          xhtml = _ref4.xhtml;
-
-      var innerHTML = (0, _utils.unwrap)(children);
-      if (children !== this.innerHTML) {
-        this.initialize({ children: innerHTML, decode: decode, rootUrl: rootUrl, xhtml: xhtml });
-      }
-    }
-  }, {
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(_ref5) {
-      var innerHTML = _ref5.children;
-
-      return innerHTML !== this.props.children[0];
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      var _this2 = this;
-
-      this.scripts.forEach(function (_ref6) {
-        var key = _ref6.key,
-            code = _ref6.code;
-
-        var script = document.createElement("script");
-        script.textContent = code.replace(/\bdocument\.write\b/g, _this2.documentWrite(key));
-        document.querySelector("body").appendChild(script);
-        _this2.insertedNodes.push(script);
-      });
-      if (this.css.length > 0) {
-        var style = document.createElement("style");
-        style.textContent = this.css.join("\r\n");
-        document.querySelector("head").appendChild(style);
-        this.insertedNodes.push(style);
-      }
-    }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      this.insertedNodes.forEach(function (node) {
-        return node.parentNode.removeChild(node);
-      });
-      this.insertedNodes = [];
-    }
-  }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate() {
-      this.componentDidMount();
-    }
-  }, {
-    key: "componentWillUpdate",
-    value: function componentWillUpdate() {
-      this.componentWillUnmount();
     }
   }, {
     key: "createElement",
@@ -224,7 +232,7 @@ var SafeInnerHtml = function (_Component) {
       var sub = childNodes.length && this.renderNodes(childNodes);
       var children = sub && sub.length > 0 ? sub : undefined;
 
-      var plug = this.props["element-" + localName];
+      var plug = (0, _get2.default)("element-" + localName)(this.props) || false;
       if (plug === false) {
         return;
       }
@@ -234,16 +242,22 @@ var SafeInnerHtml = function (_Component) {
       var element = plugElement === undefined ? defaultElement : plugElement;
       if (element) {
         var type = element.type,
-            _props = element.props;
+            elementProps = element.props;
 
-        return _react2.default.createElement(type, _props, children);
+        _react2.default.createElement(type, elementProps, children);
       }
+    }
+  }, {
+    key: "documentWrite",
+    value: function documentWrite(key) {
+      return "(function(html){if(html==null)return;" + ("var e=document.querySelector('" + this.selector(key) + "');") + 'if(e){e.innerHTML=html;e.style.display="inline";}})';
     }
   }, {
     key: "renderNodes",
     value: function renderNodes(nodes) {
       var _this4 = this;
 
+      // eslint-disable-next-line lodash-fp/prefer-composition-grouping
       return (0, _flow2.default)((0, _map2.default)(function (node) {
         return { node: node, key: _utils.sequence.uniqueId };
       }), (0, _map2.default)(function (_ref8) {
@@ -278,12 +292,9 @@ var SafeInnerHtml = function (_Component) {
         return !(0, _some2.default)(ignoreKey(key))(ignored);
       })(this.props);
 
-      return result.length === 0 ? null : _react2.default.createElement(this.props.wrapper, wrapperProps, result);
-    }
-  }, {
-    key: "documentWrite",
-    value: function documentWrite(key) {
-      return "(function(html){if(html==null)return;" + ("var e=document.querySelector('" + this.selector(key) + "');") + 'if(e){e.innerHTML=html;e.style.display="inline";}})';
+      var wrapper = this.props.wrapper;
+
+      return result.length === 0 ? null : _react2.default.createElement(wrapper, wrapperProps, result);
     }
   }]);
 
@@ -292,16 +303,17 @@ var SafeInnerHtml = function (_Component) {
 
 SafeInnerHtml.propTypes = {
   children: _propTypes2.default.string.isRequired,
-  wrapper: _propTypes2.default.string,
-  decode: _propTypes2.default.bool.isRequired,
-  xhtml: _propTypes2.default.bool.isRequired,
+  wrapper: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.func, _propTypes2.default.object]),
+  decode: _propTypes2.default.bool,
+  xhtml: _propTypes2.default.bool,
   rootUrl: _propTypes2.default.string
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
   decode: false,
-  xhtml: false
+  xhtml: false,
+  rootUrl: undefined
 };
 
 exports.default = SafeInnerHtml;
