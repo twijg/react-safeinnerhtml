@@ -1,0 +1,51 @@
+---
+root: true
+env:
+  browser: true
+  node: true
+  jest: true
+parser: babel-eslint
+extends:
+- airbnb
+- prettier
+plugins:
+- lodash-fp
+- prettier
+rules:
+  react/jsx-one-expression-per-line: off
+
+  linebreak-style: off
+  no-unused-vars: [error, argsIgnorePattern: "^_+$"]
+  react/jsx-filename-extension: off
+  react/jsx-indent: off # laten we over aan Prettier
+
+  # jsx-a11y/anchor-is-valid: off
+  # jsx-a11y/click-events-have-key-events: off
+  # jsx-a11y/mouse-events-have-key-events: off
+
+  # import/first: off
+  # import/no-named-as-default-member: off
+  # import/no-extraneous-dependencies: off
+
+  lodash-fp/consistent-compose: error
+  lodash-fp/consistent-name: [error, _]
+  lodash-fp/no-argumentless-calls: error
+  lodash-fp/no-chain: error
+  lodash-fp/no-extraneous-args: error
+  lodash-fp/no-extraneous-function-wrapping: error
+  lodash-fp/no-extraneous-iteratee-args: error
+  lodash-fp/no-for-each: off # error
+  lodash-fp/no-partial-of-curried: error
+  lodash-fp/no-single-composition: error
+  lodash-fp/no-submodule-destructuring: error
+  lodash-fp/no-unused-result: error
+  lodash-fp/prefer-compact: error
+  lodash-fp/prefer-composition-grouping: error
+  lodash-fp/prefer-constant: [error, arrowFunctions: false]
+  lodash-fp/prefer-flat-map: error
+  lodash-fp/prefer-get: error
+  lodash-fp/prefer-identity: [error, arrowFunctions: false]
+  lodash-fp/preferred-alias: error
+  lodash-fp/use-fp: error
+
+  prettier/prettier: error
