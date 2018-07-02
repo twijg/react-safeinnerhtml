@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.parseHTML = exports.unwrap = exports.htmlProps = exports.sequence = undefined;
+exports.FragmentShape = exports.parseHTML = exports.convertAttribute = exports.convert = exports.unwrap = exports.htmlProps = exports.sequence = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -12,6 +12,22 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _classnames = require("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
+
+var _htmlparser = require("htmlparser2");
+
+var _htmlparser2 = _interopRequireDefault(_htmlparser);
+
+var _map = require("lodash/fp/map");
+
+var _map2 = _interopRequireDefault(_map);
+
+var _get = require("lodash/fp/get");
+
+var _get2 = _interopRequireDefault(_get);
+
+var _keys = require("lodash/fp/keys");
+
+var _keys2 = _interopRequireDefault(_keys);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -266,8 +282,38 @@ var unwrap = exports.unwrap = function unwrap(maybeArray) {
   return Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 };
 
+var convert = exports.convert = function convert(_ref2) {
+  var data = _ref2.data,
+      type = _ref2.type,
+      name = _ref2.name,
+      attribs = _ref2.attribs,
+      children = _ref2.children;
+  return {
+    localName: name,
+    nodeType: type,
+    nodeValue: data,
+    attributes: attribs,
+    childNodes: children
+  };
+};
+
+var convertAttribute = exports.convertAttribute = function convertAttribute(attribute) {
+  return (0, _map2.default)(function (k) {
+    return {
+      localName: k,
+      nodeValue: attribute[k]
+    };
+  })((0, _keys2.default)(attribute));
+};
+
 /** Parses HTML and returns body element */
 var parseHTML = exports.parseHTML = function parseHTML(innerHTML) {
-  var xhtml = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  return xhtml ? new DOMParser().parseFromString(innerHTML, "application/xhtml+xml") : new DOMParser().parseFromString(innerHTML, "text/html").body;
+  return _htmlparser2.default.parseDOM(innerHTML, {
+    decodeEntities: true,
+    recognizeSelfClosing: true
+  });
+};
+
+var FragmentShape = exports.FragmentShape = function FragmentShape(props, propName) {
+  return (0, _get2.default)(propName)(props).toString() !== "Symbol(react.fragment)" ? new Error(propName + " is not a Fragment") : null;
 };

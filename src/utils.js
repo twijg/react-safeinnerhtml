@@ -1,4 +1,8 @@
 import classNames from "classnames";
+import htmlparser from "htmlparser2";
+import map from "lodash/fp/map";
+import get from "lodash/fp/get";
+import keys from "lodash/fp/keys";
 
 export const sequence = ((lastId = 0) =>
   class Sequence {
@@ -236,8 +240,27 @@ export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
 export const unwrap = maybeArray =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
-/** Parses HTML and returns body element */
-export const parseHTML = (innerHTML, xhtml = false) =>
-  xhtml
-    ? new DOMParser().parseFromString(innerHTML, "application/xhtml+xml")
-    : new DOMParser().parseFromString(innerHTML, "text/html").body;
+export const convert = ({ data, type, name, attribs, children }) => ({
+  localName: name,
+  nodeType: type,
+  nodeValue: data,
+  attributes: attribs,
+  childNodes: children
+});
+
+export const convertAttribute = attribute =>
+  map(k => ({
+    localName: k,
+    nodeValue: attribute[k]
+  }))(keys(attribute));
+
+export const parseHTML = innerHTML =>
+  htmlparser.parseDOM(innerHTML, {
+    decodeEntities: true,
+    recognizeSelfClosing: true
+  });
+
+export const FragmentShape = (props, propName) =>
+  get(propName)(props).toString() !== "Symbol(react.fragment)"
+    ? new Error(`${propName} is not a Fragment`)
+    : null;

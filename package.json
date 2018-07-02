@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -18,10 +18,10 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
+    "test": "jest --roots src",
     "lint": "eslint -c .eslintrc.yml src/**/*.js*",
     "prettier": "prettier --write src/**/*.js*",
-    "build": "cross-env NODE_ENV=production babel src/ --out-dir dist/",
+    "build": "cross-env NODE_ENV=production babel src/ --ignore **/*.test.js --out-dir dist/",
     "lint-staged": "lint-staged"
   },
   "lint-staged": {
@@ -36,6 +36,7 @@
   ],
   "dependencies": {
     "classnames": "^2.2",
+    "htmlparser2": "^3.9.2",
     "lodash": "^4.0.0",
     "prop-types": "^15.5.8",
     "react": "^16",

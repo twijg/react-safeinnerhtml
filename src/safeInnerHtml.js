@@ -7,8 +7,18 @@ import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import some from "lodash/fp/some";
 import get from "lodash/fp/get";
+import unescape from "lodash/fp/unescape";
+import includes from "lodash/fp/includes";
 
-import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
+import {
+  htmlProps,
+  parseHTML,
+  sequence,
+  unwrap,
+  convert,
+  convertAttribute,
+  FragmentShape
+} from "./utils";
 
 class SafeInnerHtml extends Component {
   constructor(props) {
@@ -38,10 +48,10 @@ class SafeInnerHtml extends Component {
     }
   }
 
-  componentWillReceiveProps({ children, decode, rootUrl, xhtml }) {
+  componentWillReceiveProps({ children, decode }) {
     const innerHTML = unwrap(children);
     if (children !== this.innerHTML) {
-      this.initialize({ children: innerHTML, decode, rootUrl, xhtml });
+      this.initialize({ children: innerHTML, decode });
     }
   }
 
@@ -75,8 +85,7 @@ class SafeInnerHtml extends Component {
       return newAttribute;
     };
 
-    const plug =
-      get(`attribute-${localName.toLowerCase()}`)(this.props) || false;
+    const plug = get(`attribute-${localName.toLowerCase()}`)(this.props);
     if (typeof plug === "function") {
       const result = plug(
         { attribute, key, elementName },
@@ -88,7 +97,7 @@ class SafeInnerHtml extends Component {
     }
 
     if (plug === false) {
-      return false;
+      return undefined;
     }
 
     switch (localName.toLowerCase()) {
@@ -120,20 +129,25 @@ class SafeInnerHtml extends Component {
     return `${elementName}.${key}`;
   }
 
-  initialize({ children, decode = false, rootUrl = "/", xhtml = false }) {
+  initialize({ children, decode = false }) {
     this.innerHTML = unwrap(children);
-    this.fragment = this.createFragment(this.innerHTML, decode, xhtml);
+    this.fragment = this.createFragment(this.innerHTML, decode);
     this.scripts = [];
     this.css = [];
-    this.rootUrl = rootUrl;
   }
 
-  createFragment(innerHTML, decode, xhtml = false) {
-    const root = parseHTML(innerHTML, xhtml);
-    return decode ? this.createFragment(root.textContent, false, xhtml) : root;
+  // eslint-disable-next-line class-methods-use-this
+  createFragment(innerHTML, decode) {
+    const html = decode ? unescape(innerHTML) : innerHTML;
+    return parseHTML(html);
   }
 
   createElement({ localName, attributes, childNodes, key }) {
+    const localNames = flow(
+      map("localName"),
+      compact
+    )(attributes);
+
     const props = htmlProps(
       flow(
         map(attribute =>
@@ -142,14 +156,14 @@ class SafeInnerHtml extends Component {
         compact
       )(attributes),
       key,
-      "style" in attributes
+      includes("style")(localNames)
     );
     const sub = childNodes.length && this.renderNodes(childNodes);
     const children = sub && sub.length > 0 ? sub : undefined;
 
-    const plug = get(`element-${localName}`)(this.props) || false;
+    const plug = get(`element-${localName}`)(this.props);
     if (plug === false) {
-      return;
+      return undefined;
     }
 
     const defaultElement = { type: localName, props };
@@ -158,8 +172,10 @@ class SafeInnerHtml extends Component {
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
       const { type, props: elementProps } = element;
-      React.createElement(type, elementProps, children);
+      return React.createElement(type, elementProps, children);
     }
+
+    return undefined;
   }
 
   documentWrite(key) {
@@ -173,6 +189,7 @@ class SafeInnerHtml extends Component {
   renderNodes(nodes) {
     // eslint-disable-next-line lodash-fp/prefer-composition-grouping
     return flow(
+      map(convert),
       map(node => ({ node, key: sequence.uniqueId })),
       map(({ node, key }) => {
         const chosen = this.chooseNode({ node, key });
@@ -184,8 +201,13 @@ class SafeInnerHtml extends Component {
           node: { localName, nodeType, nodeValue, attributes, childNodes },
           key
         }) =>
-          nodeType === 1
-            ? this.createElement({ localName, attributes, childNodes, key })
+          nodeType === "tag"
+            ? this.createElement({
+                localName,
+                attributes: convertAttribute(attributes),
+                childNodes,
+                key
+              })
             : nodeValue
       ),
       compact
@@ -193,19 +215,11 @@ class SafeInnerHtml extends Component {
   }
 
   render() {
-    const result = this.renderNodes(this.fragment.childNodes);
-    const ignored = [
-      "attribute-",
-      "element-",
-      "children",
-      "wrapper",
-      "decode",
-      "rootUrl",
-      "xhtml"
-    ];
+    const result = this.renderNodes(this.fragment);
+    const ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
 
     const ignoreKey = key => ignore => new RegExp(`^${ignore}`, "i").test(key);
-    const wrapperProps = pickBy((value, key) => !some(ignoreKey(key))(ignored))(
+    const wrapperProps = pickBy((_, key) => !some(ignoreKey(key))(ignored))(
       this.props
     );
 
@@ -221,18 +235,16 @@ SafeInnerHtml.propTypes = {
   wrapper: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.func,
-    PropTypes.object
+    PropTypes.instanceOf(Component),
+    PropTypes.instanceOf(React.PureComponent),
+    FragmentShape
   ]),
-  decode: PropTypes.bool,
-  xhtml: PropTypes.bool,
-  rootUrl: PropTypes.string
+  decode: PropTypes.bool
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
-  decode: false,
-  xhtml: false,
-  rootUrl: undefined
+  decode: false
 };
 
 export default SafeInnerHtml;

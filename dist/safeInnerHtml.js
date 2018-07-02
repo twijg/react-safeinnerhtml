@@ -38,6 +38,14 @@ var _get = require("lodash/fp/get");
 
 var _get2 = _interopRequireDefault(_get);
 
+var _unescape = require("lodash/fp/unescape");
+
+var _unescape2 = _interopRequireDefault(_unescape);
+
+var _includes = require("lodash/fp/includes");
+
+var _includes2 = _interopRequireDefault(_includes);
+
 var _utils = require("./utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -89,13 +97,11 @@ var SafeInnerHtml = function (_Component) {
     key: "componentWillReceiveProps",
     value: function componentWillReceiveProps(_ref2) {
       var children = _ref2.children,
-          decode = _ref2.decode,
-          rootUrl = _ref2.rootUrl,
-          xhtml = _ref2.xhtml;
+          decode = _ref2.decode;
 
       var innerHTML = (0, _utils.unwrap)(children);
       if (children !== this.innerHTML) {
-        this.initialize({ children: innerHTML, decode: decode, rootUrl: rootUrl, xhtml: xhtml });
+        this.initialize({ children: innerHTML, decode: decode });
       }
     }
   }, {
@@ -144,7 +150,7 @@ var SafeInnerHtml = function (_Component) {
         return newAttribute;
       };
 
-      var plug = (0, _get2.default)("attribute-" + localName.toLowerCase())(this.props) || false;
+      var plug = (0, _get2.default)("attribute-" + localName.toLowerCase())(this.props);
       if (typeof plug === "function") {
         var result = plug({ attribute: attribute, key: key, elementName: elementName }, { addCss: this.addCss });
         if (result !== undefined) {
@@ -153,7 +159,7 @@ var SafeInnerHtml = function (_Component) {
       }
 
       if (plug === false) {
-        return false;
+        return undefined;
       }
 
       switch (localName.toLowerCase()) {
@@ -196,25 +202,21 @@ var SafeInnerHtml = function (_Component) {
     value: function initialize(_ref6) {
       var children = _ref6.children,
           _ref6$decode = _ref6.decode,
-          decode = _ref6$decode === undefined ? false : _ref6$decode,
-          _ref6$rootUrl = _ref6.rootUrl,
-          rootUrl = _ref6$rootUrl === undefined ? "/" : _ref6$rootUrl,
-          _ref6$xhtml = _ref6.xhtml,
-          xhtml = _ref6$xhtml === undefined ? false : _ref6$xhtml;
+          decode = _ref6$decode === undefined ? false : _ref6$decode;
 
       this.innerHTML = (0, _utils.unwrap)(children);
-      this.fragment = this.createFragment(this.innerHTML, decode, xhtml);
+      this.fragment = this.createFragment(this.innerHTML, decode);
       this.scripts = [];
       this.css = [];
-      this.rootUrl = rootUrl;
     }
+
+    // eslint-disable-next-line class-methods-use-this
+
   }, {
     key: "createFragment",
     value: function createFragment(innerHTML, decode) {
-      var xhtml = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-      var root = (0, _utils.parseHTML)(innerHTML, xhtml);
-      return decode ? this.createFragment(root.textContent, false, xhtml) : root;
+      var html = decode ? (0, _unescape2.default)(innerHTML) : innerHTML;
+      return (0, _utils.parseHTML)(html);
     }
   }, {
     key: "createElement",
@@ -226,15 +228,17 @@ var SafeInnerHtml = function (_Component) {
           childNodes = _ref7.childNodes,
           key = _ref7.key;
 
+      var localNames = (0, _flow2.default)((0, _map2.default)("localName"), _compact2.default)(attributes);
+
       var props = (0, _utils.htmlProps)((0, _flow2.default)((0, _map2.default)(function (attribute) {
         return _this3.chooseAttribute({ attribute: attribute, key: key, elementName: localName });
-      }), _compact2.default)(attributes), key, "style" in attributes);
+      }), _compact2.default)(attributes), key, (0, _includes2.default)("style")(localNames));
       var sub = childNodes.length && this.renderNodes(childNodes);
       var children = sub && sub.length > 0 ? sub : undefined;
 
-      var plug = (0, _get2.default)("element-" + localName)(this.props) || false;
+      var plug = (0, _get2.default)("element-" + localName)(this.props);
       if (plug === false) {
-        return;
+        return undefined;
       }
 
       var defaultElement = { type: localName, props: props };
@@ -244,8 +248,10 @@ var SafeInnerHtml = function (_Component) {
         var type = element.type,
             elementProps = element.props;
 
-        _react2.default.createElement(type, elementProps, children);
+        return _react2.default.createElement(type, elementProps, children);
       }
+
+      return undefined;
     }
   }, {
     key: "documentWrite",
@@ -258,7 +264,7 @@ var SafeInnerHtml = function (_Component) {
       var _this4 = this;
 
       // eslint-disable-next-line lodash-fp/prefer-composition-grouping
-      return (0, _flow2.default)((0, _map2.default)(function (node) {
+      return (0, _flow2.default)((0, _map2.default)(_utils.convert), (0, _map2.default)(function (node) {
         return { node: node, key: _utils.sequence.uniqueId };
       }), (0, _map2.default)(function (_ref8) {
         var node = _ref8.node,
@@ -274,21 +280,26 @@ var SafeInnerHtml = function (_Component) {
             attributes = _ref9$node.attributes,
             childNodes = _ref9$node.childNodes,
             key = _ref9.key;
-        return nodeType === 1 ? _this4.createElement({ localName: localName, attributes: attributes, childNodes: childNodes, key: key }) : nodeValue;
+        return nodeType === "tag" ? _this4.createElement({
+          localName: localName,
+          attributes: (0, _utils.convertAttribute)(attributes),
+          childNodes: childNodes,
+          key: key
+        }) : nodeValue;
       }), _compact2.default)(nodes);
     }
   }, {
     key: "render",
     value: function render() {
-      var result = this.renderNodes(this.fragment.childNodes);
-      var ignored = ["attribute-", "element-", "children", "wrapper", "decode", "rootUrl", "xhtml"];
+      var result = this.renderNodes(this.fragment);
+      var ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
 
       var ignoreKey = function ignoreKey(key) {
         return function (ignore) {
           return new RegExp("^" + ignore, "i").test(key);
         };
       };
-      var wrapperProps = (0, _pickBy2.default)(function (value, key) {
+      var wrapperProps = (0, _pickBy2.default)(function (_, key) {
         return !(0, _some2.default)(ignoreKey(key))(ignored);
       })(this.props);
 
@@ -303,17 +314,13 @@ var SafeInnerHtml = function (_Component) {
 
 SafeInnerHtml.propTypes = {
   children: _propTypes2.default.string.isRequired,
-  wrapper: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.func, _propTypes2.default.object]),
-  decode: _propTypes2.default.bool,
-  xhtml: _propTypes2.default.bool,
-  rootUrl: _propTypes2.default.string
+  wrapper: _propTypes2.default.oneOfType([_propTypes2.default.string, _propTypes2.default.func, _propTypes2.default.instanceOf(_react.Component), _propTypes2.default.instanceOf(_react2.default.PureComponent), _utils.FragmentShape]),
+  decode: _propTypes2.default.bool
 };
 
 SafeInnerHtml.defaultProps = {
   wrapper: "div",
-  decode: false,
-  xhtml: false,
-  rootUrl: undefined
+  decode: false
 };
 
 exports.default = SafeInnerHtml;
