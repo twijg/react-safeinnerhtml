@@ -19,14 +19,6 @@ rules:
   react/jsx-filename-extension: off
   react/jsx-indent: off # laten we over aan Prettier
 
-  # jsx-a11y/anchor-is-valid: off
-  # jsx-a11y/click-events-have-key-events: off
-  # jsx-a11y/mouse-events-have-key-events: off
-
-  # import/first: off
-  # import/no-named-as-default-member: off
-  # import/no-extraneous-dependencies: off
-
   lodash-fp/consistent-compose: error
   lodash-fp/consistent-name: [error, _]
   lodash-fp/no-argumentless-calls: error
