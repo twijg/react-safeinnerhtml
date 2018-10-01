@@ -39,6 +39,13 @@ describe("SafeInnerHtml", () => {
     expect(wrapper.html()).toBe(expected);
   });
 
+  it("Render HTML with self-closing tags", () => {
+    const input = "<div><p>Line one<br></br>Line two</p></div>";
+    const wrapper = mount(<SafeInnerHtml>{input}</SafeInnerHtml>);
+    const expected = "<div><div><p>Line one<br>Line two</p></div></div>";
+    expect(wrapper.html()).toBe(expected);
+  });
+
   it("Render encoded HTML", () => {
     const input = "&lt;div&gt;&lt;p&gt;Hello world!&lt;/p&gt;&lt;/div&gt;";
     const wrapper = mount(<SafeInnerHtml decode>{input}</SafeInnerHtml>);

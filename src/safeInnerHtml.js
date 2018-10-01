@@ -11,13 +11,13 @@ import unescape from "lodash/fp/unescape";
 import includes from "lodash/fp/includes";
 
 import {
+  FragmentShape,
+  convert,
+  convertAttribute,
   htmlProps,
   parseHTML,
   sequence,
-  unwrap,
-  convert,
-  convertAttribute,
-  FragmentShape
+  unwrap
 } from "./utils";
 
 class SafeInnerHtml extends Component {

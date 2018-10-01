@@ -84,6 +84,7 @@ Build this package:
 ```
 yarn prettier
 yarn lint
+yarn test
 yarn build
 ```
 

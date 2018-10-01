@@ -221,6 +221,31 @@ const reactHtmlProps = {
   zoomandpan: "zoomAndPan"
 };
 
+const emptyHtmlElements = [
+  "base",
+  "link",
+  "meta",
+  "hr",
+  "br",
+  "wbr",
+  "img",
+  "embed",
+  "param",
+  "source",
+  "track",
+  "area",
+  "col",
+  "input",
+  "keygen",
+  "command",
+  "device"
+];
+
+const closingEmptyTagRegex = new RegExp(
+  `</(${emptyHtmlElements.join("|")})>`,
+  "gi"
+);
+
 export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
   const temp = [...namedNodeMap].reduce(
     (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => {
@@ -255,7 +280,7 @@ export const convertAttribute = attribute =>
   }))(keys(attribute));
 
 export const parseHTML = innerHTML =>
-  htmlparser.parseDOM(innerHTML, {
+  htmlparser.parseDOM((innerHTML || "").replace(closingEmptyTagRegex, ""), {
     decodeEntities: true,
     recognizeSelfClosing: true
   });
