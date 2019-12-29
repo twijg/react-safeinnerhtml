@@ -143,10 +143,7 @@ class SafeInnerHtml extends Component {
   }
 
   createElement({ localName, attributes, childNodes, key }) {
-    const localNames = flow(
-      map("localName"),
-      compact
-    )(attributes);
+    const localNames = flow(map("localName"), compact)(attributes);
 
     const props = htmlProps(
       flow(
