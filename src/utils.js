@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import htmlparser from "htmlparser2";
+import { parseDOM } from "htmlparser2";
 import map from "lodash/fp/map";
 import get from "lodash/fp/get";
 import keys from "lodash/fp/keys";
@@ -10,9 +10,7 @@ export const sequence = ((lastId = 0) =>
       // eslint-disable-next-line no-plusplus,no-param-reassign
       return `${Date.now().toString(36)}_${(++lastId).toString(
         36
-      )}_${Math.random()
-        .toString(36)
-        .substring(2)}`;
+      )}_${Math.random().toString(36).substring(2)}`;
     }
   })();
 
@@ -218,7 +216,7 @@ const reactHtmlProps = {
   xmllang: "xmlLang",
   xmlspace: "xmlSpace",
   ychannelselector: "yChannelSelector",
-  zoomandpan: "zoomAndPan"
+  zoomandpan: "zoomAndPan",
 };
 
 const emptyHtmlElements = [
@@ -238,7 +236,7 @@ const emptyHtmlElements = [
   "input",
   "keygen",
   "command",
-  "device"
+  "device",
 ];
 
 const closingEmptyTagRegex = new RegExp(
@@ -258,11 +256,11 @@ export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
   return {
     ...temp,
     className: keyAsClass ? classNames(temp.className, key) : temp.className,
-    key
+    key,
   };
 };
 
-export const unwrap = maybeArray =>
+export const unwrap = (maybeArray) =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
 export const convert = ({ data, type, name, attribs, children }) => ({
@@ -270,19 +268,19 @@ export const convert = ({ data, type, name, attribs, children }) => ({
   nodeType: type,
   nodeValue: data,
   attributes: attribs,
-  childNodes: children
+  childNodes: children,
 });
 
-export const convertAttribute = attribute =>
-  map(k => ({
+export const convertAttribute = (attribute) =>
+  map((k) => ({
     localName: k,
-    nodeValue: attribute[k]
+    nodeValue: attribute[k],
   }))(keys(attribute));
 
-export const parseHTML = innerHTML =>
-  htmlparser.parseDOM((innerHTML || "").replace(closingEmptyTagRegex, ""), {
+export const parseHTML = (innerHTML) =>
+  parseDOM((innerHTML || "").replace(closingEmptyTagRegex, ""), {
     decodeEntities: true,
-    recognizeSelfClosing: true
+    recognizeSelfClosing: true,
   });
 
 export const FragmentShape = (props, propName) =>

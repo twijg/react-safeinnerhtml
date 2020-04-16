@@ -90,7 +90,7 @@ describe("SafeInnerHtml", () => {
       return {
         type: "span",
         props: { style: { ...style, fontWeight: "bold" }, ...other },
-        ...rest
+        ...rest,
       };
     };
     const wrapper = mount(
@@ -99,18 +99,11 @@ describe("SafeInnerHtml", () => {
       </SafeInnerHtml>
     );
     expect(
-      wrapper
-        .find("strong")
-        .first()
-        .props()
-        .className.split(" ").length
+      wrapper.find("strong").first().props().className.split(" ").length
     ).toBe(2);
-    expect(
-      wrapper
-        .find("strong")
-        .first()
-        .props().style
-    ).toEqual({ fontWeight: "bold" });
+    expect(wrapper.find("strong").first().props().style).toEqual({
+      fontWeight: "bold",
+    });
   });
 
   it("Render HTML with attribute-plug", () => {
@@ -120,7 +113,7 @@ describe("SafeInnerHtml", () => {
       if (attribute.nodeValue.indexOf("://") === -1) {
         return {
           localName: "href",
-          nodeValue: `http://www.domain.com/#${attribute.nodeValue}`
+          nodeValue: `http://www.domain.com/#${attribute.nodeValue}`,
         };
       }
 
