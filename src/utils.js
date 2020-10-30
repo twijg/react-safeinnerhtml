@@ -263,11 +263,12 @@ export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
 export const unwrap = (maybeArray) =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
-export const convert = ({ data, type, name, attribs, children }) => ({
+export const convert = ({ data, type, name, attribs, parent, children }) => ({
   localName: name,
   nodeType: type,
   nodeValue: data,
   attributes: attribs,
+  parentNode: parent,
   childNodes: children,
 });
 
