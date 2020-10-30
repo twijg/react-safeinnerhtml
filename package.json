@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -74,6 +74,9 @@
   },
   "bugs": {
     "url": "https://github.com/twijg/react-safeinnerhtml/issues"
+  },
+  "prettier": {
+    "endOfLine": "auto"
   },
   "importSort": {
     ".js, .jsx, .ts, .tsx": {
