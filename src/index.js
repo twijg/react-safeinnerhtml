@@ -1,5 +1,5 @@
-import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
 import SafeInnerHtml from "./safeInnerHtml";
+import { htmlProps, parseHTML, sequence, unwrap } from "./utils";
 
 export default SafeInnerHtml;
 

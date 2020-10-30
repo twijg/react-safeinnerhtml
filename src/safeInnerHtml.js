@@ -1,14 +1,13 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-
 import compact from "lodash/fp/compact";
 import flow from "lodash/fp/flow";
+import get from "lodash/fp/get";
+import includes from "lodash/fp/includes";
 import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import some from "lodash/fp/some";
-import get from "lodash/fp/get";
 import unescape from "lodash/fp/unescape";
-import includes from "lodash/fp/includes";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
 
 import {
   FragmentShape,

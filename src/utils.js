@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import { parseDOM } from "htmlparser2";
-import map from "lodash/fp/map";
 import get from "lodash/fp/get";
 import keys from "lodash/fp/keys";
+import map from "lodash/fp/map";
 
 export const sequence = ((lastId = 0) =>
   class Sequence {
