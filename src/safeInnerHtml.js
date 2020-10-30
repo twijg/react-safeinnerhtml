@@ -1,14 +1,13 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-
 import compact from "lodash/fp/compact";
 import flow from "lodash/fp/flow";
+import get from "lodash/fp/get";
+import includes from "lodash/fp/includes";
 import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import some from "lodash/fp/some";
-import get from "lodash/fp/get";
 import unescape from "lodash/fp/unescape";
-import includes from "lodash/fp/includes";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
 
 import {
   FragmentShape,
@@ -144,7 +143,7 @@ class SafeInnerHtml extends Component {
     return parseHTML(html);
   }
 
-  createElement({ localName, attributes, childNodes, key }) {
+  createElement({ localName, attributes, parentNode, childNodes, key }) {
     const localNames = flow(map("localName"), compact)(attributes);
 
     const props = htmlProps(
@@ -167,7 +166,9 @@ class SafeInnerHtml extends Component {
 
     const defaultElement = { type: localName, props };
     const plugElement =
-      typeof plug === "function" ? plug(defaultElement) : undefined;
+      typeof plug === "function"
+        ? plug(defaultElement, parentNode, childNodes)
+        : undefined;
     const element = plugElement === undefined ? defaultElement : plugElement;
     if (element) {
       const { type, props: elementProps } = element;
@@ -197,13 +198,21 @@ class SafeInnerHtml extends Component {
       compact,
       map(
         ({
-          node: { localName, nodeType, nodeValue, attributes, childNodes },
+          node: {
+            localName,
+            nodeType,
+            nodeValue,
+            attributes,
+            parentNode,
+            childNodes,
+          },
           key,
         }) =>
           nodeType === "tag"
             ? this.createElement({
                 localName,
                 attributes: convertAttribute(attributes),
+                parentNode,
                 childNodes,
                 key,
               })

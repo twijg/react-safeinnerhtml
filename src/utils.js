@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import { parseDOM } from "htmlparser2";
-import map from "lodash/fp/map";
 import get from "lodash/fp/get";
 import keys from "lodash/fp/keys";
+import map from "lodash/fp/map";
 
 export const sequence = ((lastId = 0) =>
   class Sequence {
@@ -263,11 +263,12 @@ export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
 export const unwrap = (maybeArray) =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
-export const convert = ({ data, type, name, attribs, children }) => ({
+export const convert = ({ data, type, name, attribs, parent, children }) => ({
   localName: name,
   nodeType: type,
   nodeValue: data,
   attributes: attribs,
+  parentNode: parent,
   childNodes: children,
 });
 

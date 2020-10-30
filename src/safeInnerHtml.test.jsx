@@ -1,6 +1,6 @@
-import React, { Fragment } from "react";
 import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
+import React, { Fragment } from "react";
 
 import SafeInnerHtml from "./safeInnerHtml";
 
@@ -127,5 +127,30 @@ describe("SafeInnerHtml", () => {
     const expected =
       '<div><div><p><a href="http://www.domain.com/#/deep/link" class="hello-text" id="hello">Hello world!</a></p></div></div>';
     expect(wrapper.html()).toBe(expected);
+  });
+
+  it("Render HTML with element-plug (with parent)", () => {
+    const input =
+      '<div><p><a href="https://twijg-it.nl"><img src="dummy.gif" alt="Dummy picture" class="just-an-image" /></a></p><p><img src="dummy.gif" alt="Dummy picture" class="just-an-image" /></p></div>';
+    const elementImgPlug = ({ type, props }, parentNode) => {
+      if (parentNode && parentNode.name !== "a") {
+        return undefined;
+      }
+
+      return {
+        type,
+        props: { ...props, className: `${props.className} linked-image` },
+      };
+    };
+
+    const wrapper = mount(
+      <SafeInnerHtml element-img={elementImgPlug} element-em={false}>
+        {input}
+      </SafeInnerHtml>
+    );
+    expect(wrapper.find("img").first().props().className).toBe(
+      "just-an-image linked-image"
+    );
+    expect(wrapper.find("img").last().props().className).toBe("just-an-image");
   });
 });

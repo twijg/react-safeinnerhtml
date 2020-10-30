@@ -39,7 +39,7 @@ This example will transform a `<strong>` to `<span style="font-weight: bold">`:
 
 ```js
 <SafeInnerHtml
-  element-strong={({ props, ...rest }) => {
+  element-strong={({ props, ...rest }, parentNode, childNodes) => {
     const { style, ...other } = props;
     return {
       type: "span",
