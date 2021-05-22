@@ -1,6 +1,6 @@
 {
   "name": "react-safeinnerhtml",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "React Component to safely use HTML in the DOM",
   "keywords": [
     "react",
@@ -65,7 +65,7 @@
     "regenerator-runtime": "^0.13.0"
   },
   "resolutions": {
-    "braces": "3.0.2"
+    "braces": ">=3.0.2"
   },
   "homepage": "https://github.com/twijg/react-safeinnerhtml",
   "repository": {
