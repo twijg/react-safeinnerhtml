@@ -82,15 +82,11 @@ This example will add a prefix for `href` without `://`:
 Build this package:
 
 ```
-yarn prettier
-yarn lint
-yarn test
-yarn build
+yarn && yarn audit && yarn prettier && yarn lint && yarn test && yarn build
 ```
 
 Publish this package:
 
 ```
-npm login
-npm publish
+yarn publish
 ```
