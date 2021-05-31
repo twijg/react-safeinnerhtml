@@ -1,5 +1,6 @@
 # Logs
 dist
+.yarn/
 
 # Logs
 logs
