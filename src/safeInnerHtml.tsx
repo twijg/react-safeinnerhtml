@@ -16,11 +16,13 @@ import React, {
 } from "react";
 
 import {
+  AttributeChoice,
   AttributeExtended,
   ElementExtended,
+  NodeChoice,
   NodeExtended,
+  NodeScript,
 } from "./html/models";
-import { AttributeChoice, NodeChoice, NodeScript } from "./html/models";
 import {
   FragmentShapeFunction,
   convert,
