@@ -1,8 +1,12 @@
 import classNames from "classnames";
+import { ChildNode, Document, Text } from "domhandler";
 import { parseDOM } from "htmlparser2";
 import get from "lodash/fp/get";
 import keys from "lodash/fp/keys";
 import map from "lodash/fp/map";
+import { HTMLProps, Key } from "react";
+
+import { AttributeExtended, NodeConverted } from "./html/models";
 
 export const sequence = ((lastId = 0) =>
   class Sequence {
@@ -14,7 +18,7 @@ export const sequence = ((lastId = 0) =>
     }
   })();
 
-const reactHtmlProps = {
+const reactHtmlProps: Record<string, string> = {
   // Renamed attributes
   class: "className",
   for: "htmlFor",
@@ -244,14 +248,19 @@ const closingEmptyTagRegex = new RegExp(
   "gi"
 );
 
-export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
-  const temp = [...namedNodeMap].reduce(
+export const htmlProps = (
+  namedNodeMap: NamedNodeMap,
+  key: Key,
+  keyAsClass = false
+): HTMLProps<unknown> => {
+  const temp = ([...namedNodeMap] as AttributeExtended[]).reduce(
     (o, { localName, nodeValue, lowerName = localName.toLowerCase() }) => {
       // eslint-disable-next-line no-param-reassign
-      o[reactHtmlProps[lowerName] || lowerName] = nodeValue;
+      o[(reactHtmlProps[lowerName] || lowerName) as keyof HTMLProps<unknown>] =
+        nodeValue;
       return o;
     },
-    {}
+    {} as HTMLProps<unknown>
   );
   return {
     ...temp,
@@ -260,10 +269,17 @@ export const htmlProps = (namedNodeMap, key, keyAsClass = false) => {
   };
 };
 
-export const unwrap = (maybeArray) =>
+export const unwrap = (maybeArray: Array<string> | string): string =>
   Array.isArray(maybeArray) ? maybeArray[0] : maybeArray;
 
-export const convert = ({ data, type, name, attribs, parent, children }) => ({
+export const convert = ({
+  data,
+  type,
+  name,
+  attribs,
+  parent,
+  children,
+}: Document & Text): NodeConverted => ({
   localName: name,
   nodeType: type,
   nodeValue: data,
@@ -272,19 +288,30 @@ export const convert = ({ data, type, name, attribs, parent, children }) => ({
   childNodes: children,
 });
 
-export const convertAttribute = (attribute) =>
-  map((k) => ({
+export const convertAttribute = (
+  attribute: NamedNodeMap
+): AttributeExtended[] =>
+  map((k: keyof NamedNodeMap) => ({
     localName: k,
-    nodeValue: attribute[k],
-  }))(keys(attribute));
+    nodeValue: attribute[k as keyof NamedNodeMap],
+  }))(
+    keys(attribute) as (keyof NamedNodeMap)[]
+  ) as unknown as AttributeExtended[];
 
-export const parseHTML = (innerHTML) =>
+export const parseHTML = (innerHTML: string): ChildNode[] =>
   parseDOM((innerHTML || "").replace(closingEmptyTagRegex, ""), {
     decodeEntities: true,
     recognizeSelfClosing: true,
   });
 
-export const FragmentShape = (props, propName) =>
+export type FragmentShapeFunction = (
+  props: unknown,
+  propName: string
+) => Error | null;
+export const FragmentShape: FragmentShapeFunction = (
+  props: unknown,
+  propName: string
+) =>
   get(propName)(props).toString() !== "Symbol(react.fragment)"
     ? new Error(`${propName} is not a Fragment`)
     : null;
