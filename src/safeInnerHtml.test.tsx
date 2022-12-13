@@ -1,8 +1,20 @@
+import Adapter from "@cfaester/enzyme-adapter-react-18";
 import Enzyme, { mount } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
 import React, { Fragment } from "react";
 
-import SafeInnerHtml from "./safeInnerHtml";
+import {
+  AttributeExtended,
+  ElementExtended,
+  NodeExtended,
+} from "./html/models";
+import { SafeInnerHtml } from "./safeInnerHtml";
+
+/**
+ * Unit Test.
+ */
+interface ElementStrongProps {
+  props: ElementExtended;
+}
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -85,7 +97,7 @@ describe("SafeInnerHtml", () => {
   it("Render HTML with element-plug", () => {
     const input =
       '<div><p><strong style="color: red" class="hello-text" id="hello">Hello</strong> <em>world</em>!</p></div>';
-    const elementStrong = ({ props, ...rest }) => {
+    const elementStrong = ({ props, ...rest }: ElementStrongProps) => {
       const { style, ...other } = props;
       return {
         type: "span",
@@ -99,7 +111,7 @@ describe("SafeInnerHtml", () => {
       </SafeInnerHtml>
     );
     expect(
-      wrapper.find("strong").first().props().className.split(" ").length
+      wrapper.find("strong").first().props().className?.split(" ").length
     ).toBe(2);
     expect(wrapper.find("strong").first().props().style).toEqual({
       fontWeight: "bold",
@@ -109,7 +121,7 @@ describe("SafeInnerHtml", () => {
   it("Render HTML with attribute-plug", () => {
     const input =
       '<div><p><a href="/deep/link" class="hello-text" id="hello">Hello</strong> world!</p></div>';
-    const attributeHref = ({ attribute }) => {
+    const attributeHref = ({ attribute }: { attribute: AttributeExtended }) => {
       if (attribute.nodeValue.indexOf("://") === -1) {
         return {
           localName: "href",
@@ -132,7 +144,10 @@ describe("SafeInnerHtml", () => {
   it("Render HTML with element-plug (with parent)", () => {
     const input =
       '<div><p><a href="https://twijg-it.nl"><img src="dummy.gif" alt="Dummy picture" class="just-an-image" /></a></p><p><img src="dummy.gif" alt="Dummy picture" class="just-an-image" /></p></div>';
-    const elementImgPlug = ({ type, props }, parentNode) => {
+    const elementImgPlug = (
+      { type, props }: { type: string; props: { className: string } },
+      parentNode: NodeExtended
+    ) => {
       if (parentNode && parentNode.name !== "a") {
         return undefined;
       }

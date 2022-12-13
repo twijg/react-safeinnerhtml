@@ -1,3 +1,4 @@
+import { ChildNode } from "domhandler";
 import compact from "lodash/fp/compact";
 import flow from "lodash/fp/flow";
 import get from "lodash/fp/get";
@@ -6,11 +7,24 @@ import map from "lodash/fp/map";
 import pickBy from "lodash/fp/pickBy";
 import some from "lodash/fp/some";
 import unescape from "lodash/fp/unescape";
-import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, {
+  Component,
+  Key,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+} from "react";
 
 import {
-  FragmentShape,
+  AttributeChoice,
+  AttributeExtended,
+  ElementExtended,
+  NodeChoice,
+  NodeExtended,
+  NodeScript,
+} from "./html/models";
+import {
+  FragmentShapeFunction,
   convert,
   convertAttribute,
   htmlProps,
@@ -19,8 +33,43 @@ import {
   unwrap,
 } from "./utils";
 
-class SafeInnerHtml extends Component {
-  constructor(props) {
+export interface SafeInnerHtmlProps {
+  children: React.ReactNode;
+  decode?: boolean;
+  wrapper?:
+    | string
+    | Component
+    | React.PureComponent
+    | FragmentShapeFunction
+    | unknown;
+}
+
+export class SafeInnerHtml extends Component<SafeInnerHtmlProps> {
+  private css: string[] = [];
+  private fragment: ChildNode[] = [];
+  private innerHTML: string = "";
+  private insertedNodes: NodeExtended[] = [];
+  private scripts: NodeScript[] = [];
+
+  private get children(): React.ReactNode {
+    return this.props.children;
+  }
+
+  private get decode(): boolean | undefined {
+    return this.props.decode;
+  }
+
+  private get wrapper():
+    | string
+    | (() => unknown)
+    | Component
+    | React.PureComponent
+    | FragmentShapeFunction
+    | unknown {
+    return this.props.wrapper;
+  }
+
+  constructor(props: PropsWithChildren<SafeInnerHtmlProps>) {
     super(props);
     this.initialize(props);
     this.chooseAttribute = this.chooseAttribute.bind(this);
@@ -32,32 +81,40 @@ class SafeInnerHtml extends Component {
   componentDidMount() {
     this.scripts.forEach(({ key, code }) => {
       const script = document.createElement("script");
-      script.textContent = code.replace(
-        /\bdocument\.write\b/g,
-        this.documentWrite(key)
-      );
-      document.querySelector("body").appendChild(script);
-      this.insertedNodes.push(script);
+      script.textContent =
+        code?.replace(/\bdocument\.write\b/g, this.documentWrite(key)) || code;
+      document.querySelector("body")?.appendChild(script);
+      this.insertedNodes.push(script as unknown as NodeExtended);
     });
     if (this.css.length > 0) {
       const style = document.createElement("style");
       style.textContent = this.css.join("\r\n");
-      document.querySelector("head").appendChild(style);
-      this.insertedNodes.push(style);
+      document.querySelector("head")?.appendChild(style);
+      this.insertedNodes.push(style as unknown as NodeExtended);
     }
   }
 
   // eslint-disable-next-line camelcase
-  UNSAFE_componentWillReceiveProps({ children, decode }) {
-    const innerHTML = unwrap(children);
+  UNSAFE_componentWillReceiveProps({
+    children,
+    decode,
+  }: PropsWithChildren<SafeInnerHtmlProps>) {
+    const innerHTML = unwrap(children as string | string[]);
     if (children !== this.innerHTML) {
       this.initialize({ children: innerHTML, decode });
     }
   }
 
-  shouldComponentUpdate({ children: innerHTML }) {
+  shouldComponentUpdate({
+    children: innerHTML,
+  }: PropsWithChildren<SafeInnerHtmlProps>) {
     const { children: currentChildren } = this.props;
-    return innerHTML !== currentChildren[0];
+    return (
+      innerHTML !==
+      (Array.isArray(currentChildren)
+        ? (currentChildren as Array<unknown>)[0]
+        : currentChildren)
+    );
   }
 
   // eslint-disable-next-line camelcase
@@ -70,17 +127,23 @@ class SafeInnerHtml extends Component {
   }
 
   componentWillUnmount() {
-    this.insertedNodes.forEach((node) => node.parentNode.removeChild(node));
+    this.insertedNodes.forEach((node) =>
+      (
+        node?.parentNode as unknown as
+          | { removeChild: (node: NodeExtended) => void }
+          | undefined
+      )?.removeChild(node)
+    );
     this.insertedNodes = [];
   }
 
-  addCss(value) {
+  addCss(value: string) {
     this.css.push(value);
   }
 
-  chooseAttribute({ attribute, key, elementName }) {
+  chooseAttribute({ attribute, key, elementName }: AttributeChoice) {
     const { localName, nodeValue } = attribute;
-    const createAttribute = (name, value) => {
+    const createAttribute = (name: string, value: string) => {
       const newAttribute = attribute.ownerDocument.createAttribute(name);
       newAttribute.value = value;
       return newAttribute;
@@ -114,49 +177,59 @@ class SafeInnerHtml extends Component {
     }
   }
 
-  chooseNode({ node, key }) {
+  chooseNode({ node, key }: NodeChoice): NodeExtended {
     if (node instanceof HTMLScriptElement) {
-      this.scripts.push({ key, code: node.textContent });
-      const span = node.ownerDocument.createElement("span");
+      this.scripts.push({ key, code: (node as HTMLScriptElement).textContent });
+      const span = (node as HTMLScriptElement).ownerDocument.createElement(
+        "span"
+      );
       span.setAttribute("style", "display: none;");
-      return span;
+      return span as unknown as NodeExtended;
     }
 
-    return node;
+    return node as unknown as NodeExtended;
   }
 
   // eslint-disable-next-line class-methods-use-this
-  selector(key, elementName = "") {
+  selector(key: Key, elementName = "") {
     return `${elementName}.${key}`;
   }
 
-  initialize({ children, decode = false }) {
-    this.innerHTML = unwrap(children);
+  initialize({ children, decode = false }: SafeInnerHtmlProps) {
+    this.innerHTML = unwrap(children as string[] | string);
     this.fragment = this.createFragment(this.innerHTML, decode);
     this.scripts = [];
     this.css = [];
   }
 
   // eslint-disable-next-line class-methods-use-this
-  createFragment(innerHTML, decode) {
+  createFragment(innerHTML: string, decode: boolean): ChildNode[] {
     const html = decode ? unescape(innerHTML) : innerHTML;
     return parseHTML(html);
   }
 
-  createElement({ localName, attributes, parentNode, childNodes, key }) {
-    const localNames = flow(map("localName"), compact)(attributes);
+  createElement({
+    localName,
+    attributes,
+    parentNode,
+    childNodes,
+    key,
+  }: ElementExtended): ReactElement | undefined {
+    const localNames = flow(map("localName"), compact)(attributes) as string[];
 
     const props = htmlProps(
       flow(
-        map((attribute) =>
-          this.chooseAttribute({ attribute, key, elementName: localName })
+        map((attribute: AttributeExtended) =>
+          this.chooseAttribute({ attribute, key, elementName: localName! })
         ),
         compact
-      )(attributes),
+      )(attributes) as unknown as NamedNodeMap,
       key,
       includes("style")(localNames)
     );
-    const sub = childNodes.length && this.renderNodes(childNodes);
+    const sub =
+      childNodes.length &&
+      this.renderNodes(childNodes as unknown as ChildNode[]);
     const children = sub && sub.length > 0 ? sub : undefined;
 
     const plug = get(`element-${localName}`)(this.props);
@@ -178,7 +251,7 @@ class SafeInnerHtml extends Component {
     return undefined;
   }
 
-  documentWrite(key) {
+  documentWrite(key: Key) {
     return (
       "(function(html){if(html==null)return;" +
       `var e=document.querySelector('${this.selector(key)}');` +
@@ -186,7 +259,7 @@ class SafeInnerHtml extends Component {
     );
   }
 
-  renderNodes(nodes) {
+  renderNodes(nodes: ChildNode[]): ReactNode[] {
     // eslint-disable-next-line lodash-fp/prefer-composition-grouping
     return flow(
       map(convert),
@@ -208,52 +281,36 @@ class SafeInnerHtml extends Component {
           },
           key,
         }) =>
-          nodeType === "tag"
+          (nodeType as unknown as string) === "tag"
             ? this.createElement({
                 localName,
                 attributes: convertAttribute(attributes),
                 parentNode,
                 childNodes,
                 key,
-              })
+              } as ElementExtended)
             : nodeValue
       ),
       compact
-    )(nodes);
+    )(nodes as (Document & Text)[]);
   }
 
-  render() {
+  public render() {
     const result = this.renderNodes(this.fragment);
     const ignored = ["attribute-", "element-", "children", "wrapper", "decode"];
 
-    const ignoreKey = (key) => (ignore) =>
+    const ignoreKey = (key: string) => (ignore: string) =>
       new RegExp(`^${ignore}`, "i").test(key);
     const wrapperProps = pickBy((_, key) => !some(ignoreKey(key))(ignored))(
       this.props
     );
 
     const { wrapper } = this.props;
+    console.log({ result });
     return result.length === 0
       ? null
-      : React.createElement(wrapper, wrapperProps, result);
+      : React.createElement(wrapper as string, wrapperProps, result);
   }
 }
-
-SafeInnerHtml.propTypes = {
-  children: PropTypes.string.isRequired,
-  wrapper: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.func,
-    PropTypes.instanceOf(Component),
-    PropTypes.instanceOf(React.PureComponent),
-    FragmentShape,
-  ]),
-  decode: PropTypes.bool,
-};
-
-SafeInnerHtml.defaultProps = {
-  wrapper: "div",
-  decode: false,
-};
 
 export default SafeInnerHtml;
